@@ -1,0 +1,17 @@
+php artisan make:model Siswa -mcr
+Opsi -mcr artinya:
+
+m → sekalian buat migration (tapi karena migration siswa sudah ada, ini tidak terpakai)
+
+c → buat controller
+
+r → controller resource (CRUD otomatis)
+
+Laravel akan bikin:
+
+app/Models/Siswa.php
+
+app/Http/Controllers/SiswaController.php
+
+Route otomatis nanti kita daftarin di web.php.
+

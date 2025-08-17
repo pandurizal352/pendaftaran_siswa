@@ -17,11 +17,20 @@ class User extends Authenticatable
      *
      * @var list<string>
      */
+     protected $table = 'users';
+    protected $primaryKey = 'user_id';
+
     protected $fillable = [
         'name',
         'email',
         'password',
+        'role'
     ];
+
+    public function siswa()
+    {
+        return $this->hasOne(Siswa::class, 'user_id', 'user_id');
+    }
 
     /**
      * The attributes that should be hidden for serialization.
