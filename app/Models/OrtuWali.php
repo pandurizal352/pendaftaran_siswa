@@ -21,7 +21,7 @@ class OrtuWali extends Model
         'pekerjaan_ibu',
         'alamat_ortu',
         'no_hp_ortu'
-        
+
     ];
 
     public function siswa() {
