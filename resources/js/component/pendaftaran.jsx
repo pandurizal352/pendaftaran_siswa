@@ -27,6 +27,7 @@ export default function CreateSiswa() {
         file_path: null,
     });
 
+    
     const handleChange = (e) => {
         const { name, value, files } = e.target;
         setFormData({
@@ -36,19 +37,47 @@ export default function CreateSiswa() {
     };
 
     const handleSubmit = async (e) => {
-        e.preventDefault();
-        const data = new FormData();
-        Object.entries(formData).forEach(([key, value]) => {
-            data.append(key, value);
-        });
+  e.preventDefault();
+  const data = new FormData();
+  Object.entries(formData).forEach(([key, value]) => {
+    data.append(key, value);
+  });
 
-        await fetch("/api/siswa", {
-            method: "POST",
-            body: data,
-        });
+  try {
+    const res = await fetch("http://localhost:8000/api/siswa", {
+      method: "POST",
+      body: data,
+    });
 
-        alert("Data tersimpan!");
-    };
+    if (!res.ok) {
+      const errorText = await res.text();
+      console.error("Server Error:", errorText);
+      return;
+    }
+
+    const result = await res.json();
+    console.log("Sukses:", result);
+    alert("Data tersimpan!");
+  } catch (err) {
+    console.error("Request Error:", err);
+  }
+};
+
+
+    // const handleSubmit = async (e) => {
+    //     e.preventDefault();
+    //     const data = new FormData();
+    //     Object.entries(formData).forEach(([key, value]) => {
+    //         data.append(key, value);
+    //     });
+
+    //     await fetch("/api/siswa", {
+    //         method: "POST",
+    //         body: data,
+    //     });
+
+    //     // alert("Data tersimpan!");
+    // };
 
     return (
         <div className="max-w-3xl mx-auto p-6 bg-white shadow rounded-lg">
@@ -99,7 +128,8 @@ export default function CreateSiswa() {
                 </div>
                 <div>
                     <label>Alamat</label>
-                    <textarea name="alamat"></textarea>
+                    
+                    <textarea name="alamat" onChange={handleChange} className="border rounded p-2 w-full"></textarea>
                 </div>
                 <div>
                     <label>No HP</label>
@@ -132,11 +162,11 @@ export default function CreateSiswa() {
                 </div>
                 <div>
                     <label>No HP Ortu</label>
-                    <input type="text" name="no_hp" onChange={handleChange} className="border rounded p-2 w-full" required />
+                    <input type="text" name="no_hp_ortu" onChange={handleChange} className="border rounded p-2 w-full" required />
                 </div>
                 <div>
                     <label>Alamat Ortu</label>
-                    <textarea name="alamat_ortu"></textarea>
+                    <textarea name="alamat_ortu" onChange={handleChange} className="border rounded p-2 w-full"></textarea>
                 </div>
                 <h3>Riwayat Pendidikan</h3>
                 
@@ -152,9 +182,6 @@ export default function CreateSiswa() {
                     <label>rata rata nilai</label>
                     <input type="text" name="rata_rata_nilai" onChange={handleChange} className="border rounded p-2 w-full" required />
                 </div>
-
-               
-
                 <h3 className="text-lg font-semibold">Dokumen</h3>
                 
                 <div>
@@ -167,12 +194,12 @@ export default function CreateSiswa() {
                 </div>
                 <div>
                     <label>jenis_dokumen</label>
-                    <input type="text" name="jenis_dokumen" onChange={handleChange} className="border rounded p-2 w-full" required />
+                    <input type="file" name="jenis_dokumen"  onChange={handleChange} className="border rounded p-2 w-full" required />
                 </div>
-                <div>
+                {/* <div>
                     <label>File Dokumen</label>
                     <input type="file" name="file_path" onChange={handleChange} className="border rounded p-2 w-full" required />
-                </div>
+                </div> */}
 
                
                 <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded-lg">

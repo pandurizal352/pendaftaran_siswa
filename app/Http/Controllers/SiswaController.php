@@ -7,6 +7,7 @@ use App\Models\OrtuWali;
 use App\Models\RiwayatPendidikan;
 use App\Models\Dokumen;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 
 use Illuminate\Support\Facades\Storage;
@@ -20,9 +21,7 @@ class SiswaController extends Controller
     {
         $siswa = Siswa::with('user')->get();
         return response()->json($siswa);
-        //blade
-        // $siswa = Siswa::with('user')->get();
-        // // return view('siswa.index', ('siswa'));
+       
     }
 
     // Form tambah siswa
@@ -30,164 +29,102 @@ class SiswaController extends Controller
     {
         return view('siswa.create');
     }
-    // Simpan siswa baru
-public function store(Request $request)
+   
+    // simpan data baru
+
+    public function store(Request $request)
     {
-        // dd($request->all());
+        set_time_limit(120); 
+
         DB::beginTransaction();
-    try {
-        // 1️⃣ Simpan Siswa
-        $siswa = Siswa::create([
-            'user_id'       => $request->user_id,
-            'nisn'          => $request->nisn,
-            'nama_lengkap'  => $request->nama_lengkap,
-            'jenis_kelamin' => $request->jenis_kelamin,
-            'tempat_lahir'  => $request->tempat_lahir,
-            'tanggal_lahir' => $request->tanggal_lahir,
-            'agama'         => $request->agama,
-            'alamat'        => $request->alamat,
-            'no_hp'         => $request->no_hp,
-            'email'         => $request->email,
-            'foto'          => $request->file('foto')->store('foto_siswa', 'public'),
-        ]);
 
-        // 2️⃣ Simpan OrtuWali
-        OrtuWali::create([
-            'siswa_id'       => $siswa->siswa_id,
-            'nama_ayah'      => $request->nama_ayah,
-            'pekerjaan_ayah' => $request->pekerjaan_ayah,
-            'nama_ibu'       => $request->nama_ibu,
-            'pekerjaan_ibu'  => $request->pekerjaan_ibu,
-            'no_hp_ortu'          => $request->no_hp_ortu,
-            'alamat_ortu'         => $request->alamat_ortu,
-        ]);
+        try {
+            Log::info('--- MULAI PENDAFTARAN SISWA ---');
 
-        // 3️⃣ Simpan Riwayat Pendidikan
-        RiwayatPendidikan::create([
-            'siswa_id'     => $siswa->siswa_id,
-            'nama_sekolah_asal' => $request->nama_sekolah_asal,
-            'alamat_sekolah_asal'  => $request->alamat_sekolah_asal,     
-            'rata_rata_nilai'  => $request->rata_rata_nilai ,
-        ]);
+            // 1. Simpan data siswa
+            $dataSiswa = [
+                'user_id'        => $request->user_id,
+                'nisn'           => $request->nisn,
+                'nama_lengkap'   => $request->nama_lengkap,
+                'jenis_kelamin'  => $request->jenis_kelamin,
+                'tempat_lahir'   => $request->tempat_lahir,
+                'tanggal_lahir'  => $request->tanggal_lahir,
+                'agama'          => $request->agama,
+                'alamat'         => $request->alamat,
+                'email'          => $request->email,
+                'no_hp'          => $request->no_hp,
+            ];
 
-        // 4️⃣ Simpan Dokumen (contoh untuk KK dan Ijazah)
-        if ($request->hasFile('kk')) {
-            Dokumen::create([
-                'siswa_id'      => $siswa->siswa_id,
-                'jenis_dokumen' => 'KK',
-                'file_path'     => $request->file('kk')->store('dokumen/kk', 'public'),
+            // upload foto siswa ke tabel siswa
+            if ($request->hasFile('foto')) {
+                $pathFoto = $request->file('foto')->store('dokumen/foto', 'public');
+                $dataSiswa['foto'] = '/storage/' . $pathFoto;
+            }
+
+            $siswa = Siswa::create($dataSiswa);
+
+            Log::info('Siswa berhasil dibuat ID: ' . $siswa->siswa_id);
+
+            // 2. Simpan data orang tua
+            OrtuWali::create([
+                'siswa_id'       => $siswa->siswa_id,
+                'nama_ayah'      => $request->nama_ayah,
+                'pekerjaan_ayah' => $request->pekerjaan_ayah,
+                'nama_ibu'       => $request->nama_ibu,
+                'pekerjaan_ibu'  => $request->pekerjaan_ibu,
+                'alamat_ortu'    => $request->alamat_ortu,
+                'no_hp_ortu'     => $request->no_hp_ortu,
             ]);
-        }
+            Log::info('Data Ortu berhasil dibuat');
 
-        if ($request->hasFile('ijazah')) {
-            Dokumen::create([
-                'siswa_id'      => $siswa->siswa_id,
-                'jenis_dokumen' => 'Ijazah',
-                'file_path'     => $request->file('ijazah')->store('dokumen/ijazah', 'public'),
+            // 3. Simpan riwayat pendidikan
+            RiwayatPendidikan::create([
+                'siswa_id'            => $siswa->siswa_id,
+                'nama_sekolah_asal'   => $request->nama_sekolah_asal,
+                'alamat_sekolah_asal' => $request->alamat_sekolah_asal,
+                'rata_rata_nilai'     => $request->rata_rata_nilai,
             ]);
+            Log::info('Riwayat pendidikan berhasil dibuat');
+
+            // 4. Upload file dokumen (selain foto siswa)
+            $dokumen = new Dokumen();
+            $dokumen->siswa_id = $siswa->siswa_id;
+            $dokumen->jenis_dokumen = $request->jenis_dokumen;
+
+
+            if ($request->hasFile('jenis_dokumen')) {
+            $pathFile = $request->file('jenis_dokumen')->store('dokumen/lainnya', 'public');
+            $dokumen->jenis_dokumen = '/storage/' . $pathFile;
+            }
+            $dokumen->tanggal_upload = $request->tanggal_upload;
+            
+            $dokumen->save();
+       
+
+            Log::info('Dokumen berhasil diupload');
+
+            DB::commit();
+
+            return response()->json([
+                'status'  => 'success',
+                'message' => 'Pendaftaran berhasil',
+                'data'    => [
+                    'siswa' => $siswa,
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error pendaftaran: ' . $e->getMessage() . ' Line: ' . $e->getLine());
+
+            return response()->json([
+                'status'  => 'error',
+                'message' => $e->getMessage(),
+            ], 500);
         }
-
-        DB::commit();
-
-        return redirect()->back()->with('success', 'Data siswa berhasil disimpan');
-
-    } catch (\Exception $e) {
-    DB::rollBack();
-    dd($e->getMessage()); // langsung hentikan dan tampilkan error
-}
     }
-}
 
+            }
 
-
-//     public function store(Request $request)
-//     {
-//         $request->validate([
-//             'user_id' => 'required|exists:users,user_id',
-//             'nisn' => 'required|unique:siswa,nisn',
-//             'nama_lengkap' => 'required',
-//             'jenis_kelamin' => 'required',
-//             'tempat_lahir' => 'required',
-//             'tanggal_lahir' => 'required|date',
-//             'agama' => 'required',
-//             'alamat' => 'required',
-//             'no_hp' => 'required',
-//             'email' => 'required|email',
-//             'foto' => 'nullable|image|max:2048',
-//         ]);
-
-//         $data = $request->all();
-
-//         // Upload foto jika ada
-//         if ($request->hasFile('foto')) {
-//             $data['foto'] = $request->file('foto')->store('foto_siswa', 'public');
-//         }
-
-//         Siswa::create($data);
-
-//         return redirect()->route('siswa.index')->with('success', 'Data siswa berhasil ditambahkan');
-//     }
-
-//     // Tampilkan detail siswa
-//     public function show($id)
-//     {
-//         $siswa = Siswa::with('user')->findOrFail($id);
-//         return view('siswa.show', compact('siswa'));
-//     }
-
-//     // Form edit siswa
-//     public function edit($id)
-//     {
-//         $siswa = Siswa::findOrFail($id);
-//         return view('siswa.edit', compact('siswa'));
-//     }
-
-//     // Update data siswa
-//    public function update(Request $request, $id)
-//     {
-//         $siswa = Siswa::findOrFail($id);
-
-//         $request->validate([
-//             'nisn' => 'required|unique:siswa,nisn,' . $id . ',siswa_id',
-//             'nama_lengkap' => 'required',
-//             'jenis_kelamin' => 'required',
-//             'tempat_lahir' => 'required',
-//             'tanggal_lahir' => 'required|date',
-//             'agama' => 'required',
-//             'alamat' => 'required',
-//             'no_hp' => 'required',
-//             'email' => 'required|email',
-//             'foto' => 'nullable|image|max:2048',
-//         ]);
-
-//         $data = $request->all();
-
-//         // Jika upload foto baru
-//         if ($request->hasFile('foto')) {
-//             // Hapus foto lama
-//             if ($siswa->foto && Storage::disk('public')->exists($siswa->foto)) {
-//                 Storage::disk('public')->delete($siswa->foto);
-//             }
-//             $data['foto'] = $request->file('foto')->store('foto_siswa', 'public');
-//         }
-
-//         $siswa->update($data);
-
-//         return redirect()->route('siswa.index')->with('success', 'Data siswa berhasil diperbarui');
-//     }
-//     // Hapus siswa
-//     public function destroy($id)
-//     {
-//         $siswa = Siswa::findOrFail($id);
-
-//         // Hapus foto dari storage
-//         if ($siswa->foto && Storage::disk('public')->exists($siswa->foto)) {
-//             Storage::disk('public')->delete($siswa->foto);
-//         }
-
-//         $siswa->delete();
-
-//         return redirect()->route('siswa.index')->with('success', 'Data siswa berhasil dihapus');
-//     }
 
 

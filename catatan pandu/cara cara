@@ -1,0 +1,6 @@
+ // cara tes data
+//       dd($request->all());
+//       return response()->json([
+//     'all' => $request->all(),
+//     'files' => $request->allFiles(),
+// ]);

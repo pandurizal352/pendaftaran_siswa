@@ -16,7 +16,7 @@ class Dokumen extends Model
     protected $fillable = [
         'siswa_id',
         'jenis_dokumen',
-        'file_path'
+        'tanggal_upload'
     ];
 
     public function siswa() {
