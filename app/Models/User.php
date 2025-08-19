@@ -11,8 +11,11 @@ use Illuminate\Notifications\Notifiable;
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
-    use HasApiTokens, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable;
+
+     public function setRememberToken($value) {}
+    public function getRememberToken() { return null; }
+    public function getRememberTokenName() { return null; }
 
     /**
      * The attributes that are mass assignable.
@@ -41,7 +44,7 @@ class User extends Authenticatable
      */
     protected $hidden = [
         'password',
-        'remember_token',
+        
     ];
 
     /**

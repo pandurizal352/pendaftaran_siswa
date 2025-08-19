@@ -11,17 +11,39 @@ use App\Http\Controllers\RiwayatPendidikanController;
 use App\Http\Controllers\SiswaController;
 use Illuminate\Support\Facades\Route;
 
-Route::apiResource('siswa', SiswaController::class);
-Route::apiResource('riwayat-pendidikan', RiwayatPendidikanController::class);
-Route::apiResource('ortu-wali', OrtuWaliController::class);
-Route::apiResource('dokumen', DokumenController::class);
-Route::apiResource('users', UserController::class);
-Route::apiResource('jalur-pendaftaran', JalurPendaftaranController::class);
-Route::apiResource('penilaian', PenilaianPendaftaranController::class);
-Route::apiResource('pendaftaran', PendaftaranController::class);
+// Route::apiResource('siswa', SiswaController::class);
+// Route::apiResource('riwayat-pendidikan', RiwayatPendidikanController::class);
+// Route::apiResource('ortu-wali', OrtuWaliController::class);
+// Route::apiResource('dokumen', DokumenController::class);
+// Route::apiResource('users', UserController::class);
+// Route::apiResource('jalur-pendaftaran', JalurPendaftaranController::class);
+// Route::apiResource('penilaian', PenilaianPendaftaranController::class);
+// Route::apiResource('pendaftaran', PendaftaranController::class);
 
 Route::post('/login', [AuthController::class, 'login']);
-Route::middleware('auth:sanctum')->group(function () {
+// Route::middleware('auth:sanctum')->group(function () {
+//     Route::get('/me', [AuthController::class, 'me']);
+//     Route::post('/logout', [AuthController::class, 'logout']);
+// });
+
+Route::middleware(['auth:sanctum'])->group(function () {
+    
+    // Semua role bisa logout & lihat profil dirinya
     Route::get('/me', [AuthController::class, 'me']);
     Route::post('/logout', [AuthController::class, 'logout']);
+
+    // Hanya role admin
+    Route::middleware('role:admin')->group(function () {
+        Route::apiResource('users', UserController::class);
+        Route::apiResource('siswa', SiswaController::class);
+        Route::apiResource('jalur-pendaftaran', JalurPendaftaranController::class);
+        Route::apiResource('penilaian', PenilaianPendaftaranController::class);
+        Route::apiResource('pendaftaran', PendaftaranController::class);
+    });
+
+ Route::middleware('role:siswa')->group(function () {
+        Route::apiResource('riwayat-pendidikan', RiwayatPendidikanController::class);
+        Route::apiResource('ortu-wali', OrtuWaliController::class);
+        Route::apiResource('dokumen', DokumenController::class);
+    });
 });
