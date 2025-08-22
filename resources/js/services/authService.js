@@ -1,22 +1,33 @@
-import { DEV_MODE } from '../utils/config'
 import { api } from './api'
 
+// LOGIN
 export async function loginRequest({ email, password }) {
-  if (DEV_MODE) return { token: "dev-token", user: { id: 1, name: email, role: "admin" } }
-  return api.post('/api/login', { email, password })
+  try {
+    // wajib ambil CSRF cookie dulu
+    await api.get('/sanctum/csrf-cookie')
+
+    // lalu login (cookies otomatis tersimpan karena credentials: 'include')
+    return await api.post('/api/login', { email, password })
+  } catch (err) {
+    throw err
+  }
 }
 
+// REGISTER
 export async function registerRequest(payload) {
-  if (DEV_MODE) return { message: "Register bypassed in DEV mode" }
-  return api.post('/api/register', payload)
+  try {
+    return await api.post('/api/users', payload)
+  } catch (err) {
+    throw err
+  }
 }
 
-export async function getProfile(token) {
-  if (DEV_MODE) return { id: 1, name: "Developer", role: "admin" }
-  return api.get('/api/user', { headers: { Authorization: `Bearer ${token}` } })
+// GET PROFILE (cek user dari sanctum cookie)
+export async function getProfile() {
+  return api.get('/api/user')
 }
 
-export async function logoutRequest(token) {
-  if (DEV_MODE) return { message: "Logout bypassed in DEV mode" }
-  return api.post('/api/logout', {}, { headers: { Authorization: `Bearer ${token}` } })
+// LOGOUT
+export async function logoutRequest() {
+  return api.post('/api/logout')
 }

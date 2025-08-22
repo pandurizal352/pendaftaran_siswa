@@ -27,6 +27,9 @@ export const api = {
   get: (path, token) => request(path, { method: 'GET', token }),
   post: (path, body, token, isForm = false) => request(path, { method: 'POST', body, token, isForm }),
   del: (path, token) => request(path, { method: 'DELETE', token }),
+
+  baseURL: "http://127.0.0.1:8000", // alamat backend Laravel
+  withCredentials: true, // penting untuk Sanctum
 }
 
 

@@ -54,7 +54,7 @@ export default function Pendaftaran() {
 
 
   return (
-    <div className="mx-auto max-w-3xl space-y-4">
+    <div className="mx-auto max-w-3xl space-y-4 mt-25 mb-15">
       <h1 className="text-2xl font-semibold">Pendaftaran Siswa Baru</h1>
       {ok && <div className="rounded bg-green-50 p-2 text-green-700">{ok}</div>}
       {err && <div className="rounded bg-red-50 p-2 text-red-600">{err}</div>}

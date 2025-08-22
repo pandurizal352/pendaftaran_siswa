@@ -27,16 +27,7 @@ export default function Login() {
 
   return (
     <div className="relative flex min-h-screen items-center justify-center bg-gray-100">
-      {/* Background watermark
-      <div className="absolute inset-0 rotate-[50deg]">
-        <div className="grid grid-cols-6 gap-12 opacity-10 text-gray-300 text-4xl font-bold w-full h-full">
-          {Array.from({ length: 400 }).map((_, i) => (
-            <div key={i} className="whitespace-nowrap">
-              SMA Budhi Warman II
-            </div>
-          ))}
-        </div>
-      </div> */}
+
 
       {/* Container */}
       <div className="relative z-10 flex w-full max-w-4xl overflow-hidden rounded-2xl bg-white shadow-lg">

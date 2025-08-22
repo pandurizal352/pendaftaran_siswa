@@ -2,70 +2,111 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-    // 🔹 REGISTER
-    public function register(Request $request)
+    public function index()
+    {
+        $users = User::with('siswa')->get(); // ikut relasi siswa
+        return response()->json($users);
+        // $users = User::all();
+        // return view('users.index', compact('users'));
+    }
+
+    public function create()
+    {
+        return view('users.create');
+    }
+
+    // POST /users → tambah user baru
+    public function store(Request $request)
     {
         $request->validate([
-            'name'     => 'required|string|max:255',
+            'username' => 'required|string|max:255',
             'email'    => 'required|string|email|unique:users,email',
-            'password' => 'required|string|min:6',
+            'password' => 'required|string|min:3',
             'role'     => 'required|string'
         ]);
 
         $user = User::create([
-            'name'     => $request->name,
+            'username' => $request->username,
             'email'    => $request->email,
-            'password' => Hash::make($request->password),
+            'password' => Hash::make($request->password), // hash password
             'role'     => $request->role,
         ]);
 
         return response()->json([
-            'message' => 'User registered successfully',
-            'user'    => $user
+            'message' => 'User berhasil ditambahkan',
+            'data'    => $user
         ], 201);
     }
 
-    // 🔹 LOGIN
-    public function login(Request $request)
+    // GET /users/{id} → tampilkan detail user
+    public function show($id)
     {
+        $user = User::with('siswa')->findOrFail($id);
+        return response()->json($user);
+    }
+
+    // PUT /users/{id} → update data user
+    public function update(Request $request, $id)
+    {
+        $user = User::findOrFail($id);
+
         $request->validate([
-            'email'    => 'required|string|email',
-            'password' => 'required|string'
+            'username' => 'sometimes|string|max:255',
+            'email'    => 'sometimes|string|email|unique:users,email,' . $user->user_id . ',user_id',
+            'password' => 'nullable|string|min:3',
+            'role'     => 'sometimes|string'
         ]);
 
-        // cek user
-        $user = User::where('email', $request->email)->first();
+        $user->username = $request->username ?? $user->username;
+        $user->email    = $request->email ?? $user->email;
+        $user->role     = $request->role ?? $user->role;
 
-        if (!$user || !Hash::check($request->password, $user->password)) {
-            return response()->json([
-                'message' => 'Invalid email or password'
-            ], 401);
+        if ($request->filled('password')) {
+            $user->password = Hash::make($request->password);
         }
 
-        // kalau pakai Sanctum
-        $token = $user->createToken('auth_token')->plainTextToken;
+        $user->save();
 
         return response()->json([
-            'message' => 'Login successful',
-            'user'    => $user,
-            'token'   => $token
+            'message' => 'User berhasil diperbarui',
+            'data'    => $user
         ]);
     }
 
-    // 🔹 LOGOUT
-    public function logout(Request $request)
+    // DELETE /users/{id} → hapus user
+    public function destroy($id)
     {
-        $request->user()->tokens()->delete();
+        $user = User::findOrFail($id);
+        $user->delete();
 
         return response()->json([
-            'message' => 'Logged out successfully'
+            'message' => 'User berhasil dihapus'
         ]);
     }
+
+    // public function store(Request $request)
+    // {
+    //     $request->validate([
+    //         'username' => 'required',
+    //         'password' => 'required',
+    //         'email' => 'required|email|unique:users,email',
+    //         'role' => 'required'
+    //     ]);
+
+    //     User::create([
+    //         'username' => $request->username,
+    //         'password' => Hash::make($request->password),
+    //         'email'    => $request->email,
+    //         'role'     => $request->role,
+    //     ]);
+
+    //     return redirect()->route('users.index')->with('success', 'User berhasil ditambahkan');
+    // }
+
 }

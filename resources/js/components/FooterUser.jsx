@@ -2,10 +2,11 @@ import React from 'react'
 
 export default function Footer() {
   return (
-    <footer className="bg-[#05445E] text-white px-20 py-10">
-      <div className="grid grid-cols-2 gap-10 items-start">
-        {/* Map di kiri */}
-        <div className="w-full h-[300px]">
+    <footer className="bg-[#05445E] text-white px-6 sm:px-10 lg:px-20 py-10">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
+
+        {/* Map */}
+        <div className="w-full h-[250px] sm:h-[300px] order-1 lg:order-1">
           <iframe
             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d4698.60383895108!2d106.8632367112611!3d-6.340246993623008!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69ecff88d34139%3A0xbcb7966c7c089e58!2sSMA-SMK%20Budi%20Warman%202!5e1!3m2!1sid!2sid!4v1755492723248!5m2!1sid!2sid"
             width="100%"
@@ -17,12 +18,12 @@ export default function Footer() {
           ></iframe>
         </div>
 
-        {/* Informasi di kanan */}
-        <div className="flex flex-col gap-6">
+        {/* Info Sekolah */}
+        <div className="flex flex-col gap-6 order-2 lg:order-2">
           {/* Tentang Sekolah */}
           <div>
             <h3 className="text-lg font-bold mb-2">Tentang Sekolah</h3>
-            <p className="text-sm text-gray-200">
+            <p className="text-sm text-white">
               SMA Budhi Warman II berkomitmen memberikan pendidikan berkualitas dengan lingkungan
               belajar yang mendukung perkembangan akademik maupun non-akademik siswa.
             </p>
@@ -40,9 +41,9 @@ export default function Footer() {
           <div>
             <h3 className="text-lg font-bold mb-2">Ikuti Kami</h3>
             <div className="flex gap-4">
-              <a href="#" className="hover:text-yellow-300">Facebook</a>
-              <a href="#" className="hover:text-yellow-300">Instagram</a>
-              <a href="#" className="hover:text-yellow-300">YouTube</a>
+              <a href="https://web.facebook.com/smabw2.official" className="hover:text-yellow-300">Facebook</a>
+              <a href="https://www.instagram.com/smkbw2.official" className="hover:text-yellow-300">Instagram</a>
+              <a href="https://www.youtube.com/@SMABUDHIWARMAN2" className="hover:text-yellow-300">YouTube</a>
             </div>
           </div>
         </div>

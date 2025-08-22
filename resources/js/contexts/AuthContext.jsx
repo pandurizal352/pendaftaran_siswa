@@ -10,6 +10,7 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
 
+  // INIT USER
   useEffect(() => {
     async function init() {
       if (DEV_MODE) {
@@ -21,10 +22,10 @@ export function AuthProvider({ children }) {
 
       try {
         if (token) {
-          const me = await getProfile(token)
-          setUser(me)
+          const { data } = await getProfile()
+          setUser(data)
         }
-      } catch (e) {
+      } catch (_) {
         localStorage.removeItem('token')
         setToken(null)
       } finally {
@@ -34,23 +35,36 @@ export function AuthProvider({ children }) {
     init()
   }, [token])
 
+  // LOGIN
   const login = async (payload) => {
     if (DEV_MODE) {
-      setToken("dev-token")
       setUser({ id: 1, name: payload.email, role: "admin" })
+      setToken("dev-token")
+      localStorage.setItem("token", "dev-token")
       return
     }
-    const { token: tkn, user: me } = await loginRequest(payload)
-    localStorage.setItem('token', tkn)
-    setToken(tkn)
+
+    const res = await loginRequest(payload)
+    if (res.status !== 200) throw new Error(res.data?.message || "Login gagal")
+
+    // setelah login, ambil profile
+    const { data: me } = await getProfile()
     setUser(me)
+    setToken("session")
+    localStorage.setItem("token", "session")
   }
 
+  // REGISTER
   const register = async (payload) => {
     if (DEV_MODE) return { message: "Register bypassed in DEV mode" }
-    return await registerRequest(payload)
+    const res = await registerRequest(payload)
+    if (!res || res.status >= 400) {
+      throw new Error(res.data?.message || "Register gagal")
+    }
+    return res.data
   }
 
+  // LOGOUT
   const logout = async () => {
     if (DEV_MODE) {
       setToken(null)
@@ -58,7 +72,9 @@ export function AuthProvider({ children }) {
       localStorage.removeItem('token')
       return
     }
-    try { await logoutRequest(token) } catch (_) {}
+    try {
+      await logoutRequest()
+    } catch (_) {}
     localStorage.removeItem('token')
     setToken(null)
     setUser(null)
