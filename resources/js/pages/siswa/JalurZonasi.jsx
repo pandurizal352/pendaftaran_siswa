@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import Table from "../../components/Table";
 import { getPendaftaran } from "../../services/siswaService";
 
-export default function ListSiswaNilai() {
+export default function ListSiswaZonasi() {
     const [rows, setRows] = useState([]);
     const [loading, setLoading] = useState(true);
     const [err, setErr] = useState("");
@@ -13,10 +13,23 @@ export default function ListSiswaNilai() {
                 const data = await getPendaftaran();
                 console.log(data);
 
-                // 🔥 Filter hanya siswa yang jalur pendaftarannya = "Jalur Nilai"
-                const filtered = data.filter(
+                // 🔥 Ambil bobot zonasi dari localStorage (diset dari Kriteria.jsx)
+                const minZonasi = Number(localStorage.getItem("minZonasi") || 0);
+
+                // 🔥 Filter hanya siswa jalur zonasi
+                let filtered = data.filter(
                     (item) => item.jalur?.nama_jalur === "zonasi"
                 );
+
+                // 🔥 Kalau ada aturan bobot zonasi → filter lagi
+                if (minZonasi > 0) {
+                    filtered = filtered.filter((item) => {
+                        // misalnya pakai nilai domisili / jarak (km)
+                        const jarak = item.siswa?.jarak_km || 0;
+                        return jarak <= minZonasi;
+                    });
+                }
+
                 setRows(filtered);
             } catch (e) {
                 setErr(e.message || "Gagal memuat data");
@@ -45,7 +58,7 @@ export default function ListSiswaNilai() {
         {
             key: "total_nilai",
             title: "Nilai",
-            render: (_, row) => row.penilaian?.[0]?.nilai_tes || "-",
+            render: (_, row) => row.penilaian?.[0]?.jarak_km || "-",
         },
         { key: "nomor_pendaftaran", title: "Nomor Pendaftaran" },
         { key: "status_pendaftaran", title: "Status Pendaftaran" },
@@ -64,7 +77,7 @@ export default function ListSiswaNilai() {
 
     return (
         <div className="space-y-4 mt-20">
-            <h1 className="text-2xl font-semibold">Data Siswa Jalur Nilai</h1>
+            <h1 className="text-2xl font-semibold">Data Siswa Jalur Zonasi</h1>
             {err && (
                 <div className="rounded bg-red-50 p-2 text-red-600">{err}</div>
             )}
@@ -75,28 +88,7 @@ export default function ListSiswaNilai() {
                     columns={columns}
                     data={rows}
                     rowKey="siswa_id"
-                    actions={(row) => (
-                        <div className="space-x-2">
-                            <a
-                                href={`#/siswa/${row.siswa_id}`}
-                                className="rounded bg-blue-500 px-3 py-1 text-white"
-                            >
-                                Detail
-                            </a>
-                            <a
-                                href={`#/siswa/${row.siswa_id}/edit`}
-                                className="rounded bg-yellow-500 px-3 py-1 text-white"
-                            >
-                                Edit
-                            </a>
-                            <button
-                                onClick={() => handleDelete(row)}
-                                className="rounded bg-red-600 px-3 py-1 text-white"
-                            >
-                                Hapus
-                            </button>
-                        </div>
-                    )}
+
                 />
             )}
         </div>

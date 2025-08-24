@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import { Link } from "react-router-dom";
@@ -9,8 +9,12 @@ import { Users, UserPlus, ChevronDown } from "lucide-react";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 
-export default function HomeSiswa({ totalSiswa, totalPendaftar }) {
+import { getPendaftaran } from "../../services/siswaService"; // ✅ panggil service
+
+export default function HomeSiswa() {
     const [openIndex, setOpenIndex] = useState(null);
+    const [totalPendaftar, setTotalPendaftar] = useState(0);
+
     const faqs = [
         {
             question: "Apa saja program unggulan di SMA Budhi Warman 2?",
@@ -30,9 +34,23 @@ export default function HomeSiswa({ totalSiswa, totalPendaftar }) {
         },
     ];
 
+    // ✅ ambil total pendaftar dari service
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const data = await getPendaftaran();
+                setTotalPendaftar(data.length); // asumsi API mengembalikan array
+            } catch (error) {
+                console.error("Gagal ambil total pendaftar:", error);
+            }
+        };
+        fetchData();
+    }, []);
+
     const toggleFAQ = (index) => {
         setOpenIndex(openIndex === index ? null : index);
     };
+
     return (
         <div className="flex flex-col min-h-screen scroll-smooth pt-20 -m-6">
             {/* Hero / Gambar Sekolah */}
@@ -53,17 +71,7 @@ export default function HomeSiswa({ totalSiswa, totalPendaftar }) {
                 <div className="absolute inset-0 flex items-center justify-center">
                     <Link
                         to="/Pendaftaran"
-                        className="
-        bg-[#05445E] text-white
-        px-6 py-3 text-lg   /* default mobile */
-        md:px-10 md:py-4 md:text-2xl /* medium screen ke atas */
-        rounded-xl shadow-xl font-bold
-        transition-transform duration-200 ease-in-out
-        hover:bg-[#189AB4] hover:scale-110
-        active:bg-[#033F4D] active:scale-95
-        focus:outline-none focus:ring-4 focus:ring-[#189AB4] focus:ring-offset-2
-        animate-pulse-scale
-      "
+                        className="bg-[#05445E] text-white px-6 py-3 text-lg md:px-10 md:py-4 md:text-2xl rounded-xl shadow-xl font-bold transition-transform duration-200 ease-in-out hover:bg-[#189AB4] hover:scale-110 active:bg-[#033F4D] active:scale-95 focus:outline-none focus:ring-4 focus:ring-[#189AB4] focus:ring-offset-2 animate-pulse-scale"
                     >
                         Daftar Sekarang !!
                     </Link>
@@ -71,8 +79,7 @@ export default function HomeSiswa({ totalSiswa, totalPendaftar }) {
 
                 <style jsx>{`
                     @keyframes pulse-scale {
-                        0%,
-                        100% {
+                        0%, 100% {
                             transform: scale(1);
                         }
                         50% {
@@ -377,10 +384,10 @@ export default function HomeSiswa({ totalSiswa, totalPendaftar }) {
                     <div className="flex items-center justify-between p-6 bg-white rounded-2xl shadow-md hover:shadow-lg transition">
                         <div>
                             <h3 className="text-gray-600 text-sm">
-                                Jumlah Siswa
+                                Jumlah Siswa/Siswi SMA Budhi Warman II 25/26
                             </h3>
                             <p className="text-3xl font-bold text-indigo-600">
-                                200
+                                661
                             </p>
                         </div>
                         <Users className="w-10 h-10 text-indigo-500" />
@@ -390,10 +397,10 @@ export default function HomeSiswa({ totalSiswa, totalPendaftar }) {
                     <div className="flex items-center justify-between p-6 bg-white rounded-2xl shadow-md hover:shadow-lg transition">
                         <div>
                             <h3 className="text-gray-600 text-sm">
-                                Jumlah Pendaftar
+                                Calon Siswa Pendaftar
                             </h3>
                             <p className="text-3xl font-bold text-green-600">
-                                {/* {totalPendaftar} */} 20
+                                {totalPendaftar}
                             </p>
                         </div>
                         <UserPlus className="w-10 h-10 text-green-500" />

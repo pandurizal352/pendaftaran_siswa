@@ -43,8 +43,8 @@ export default function EditSiswaModal({ open, onClose, data, onSave }) {
     if (!open) return null;
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center">
-            <div className="bg-white p-6 rounded-lg w-[500px]">
+        <div className="fixed inset-0 bg-opacity-70 flex justify-center items-center">
+            <div className="bg-white border-b-2 p-6 rounded-lg w-[500px] border-px-10">
                 <h2 className="text-xl font-semibold mb-4">Edit Pendaftaran</h2>
 
                 <form onSubmit={handleSubmit}>
@@ -52,6 +52,7 @@ export default function EditSiswaModal({ open, onClose, data, onSave }) {
                         name="jalur_id"
                         value={form.jalur_id}
                         onChange={handleChange}
+                        readOnly
                         placeholder="Jalur ID"
                         className="border px-2 py-1 w-full mb-2"
                     />
@@ -72,6 +73,7 @@ export default function EditSiswaModal({ open, onClose, data, onSave }) {
                         name="nomor_pendaftaran"
                         value={form.nomor_pendaftaran}
                         onChange={handleChange}
+                        readOnly
                         placeholder="Nomor Pendaftaran"
                         className="border px-2 py-1 w-full mb-2"
                     />
@@ -80,6 +82,7 @@ export default function EditSiswaModal({ open, onClose, data, onSave }) {
                         type="date"
                         name="tanggal_daftar"
                         value={form.tanggal_daftar}
+                        readOnly
                         onChange={handleChange}
                         className="border px-2 py-1 w-full mb-2"
                     />

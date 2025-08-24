@@ -50,18 +50,21 @@ export const AuthProvider = ({ children }) => {
         return profile.user;
     };
 
-    const register = async (payload) => {
-        const res = await registerRequest(payload);
-        const { token: access_token } = res;
+const register = async (payload) => {
+  try {
+    const res = await registerRequest(payload);
+    // Langsung kembalikan response backend
+    return res.data;
+  } catch (error) {
+    // Jika backend kirim error response
+    if (error.response) {
+      return error.response.data;
+    }
+    throw error;
+  }
+};
 
-        setToken(access_token);
-        localStorage.setItem("token", access_token);
 
-        const profile = await getProfile(access_token);
-        setUser(profile.user);
-
-        return profile.user;
-    };
 
     const logout = async () => {
         if (token) await logoutRequest(token).catch(() => {});

@@ -118,7 +118,7 @@ export default function Sidebar({ contentRef }) {
                     >
                         <UserCog size={18} /> Manajemen User
                     </NavLink>
-                    <NavLink
+                    {/* <NavLink
                         to="/pengaturansistem"
                         className={linkClass}
                         onClick={() => setIsOpen(false)}
@@ -131,7 +131,7 @@ export default function Sidebar({ contentRef }) {
                         onClick={() => setIsOpen(false)}
                     >
                         <ClipboardList size={18} /> Laporan
-                    </NavLink>
+                    </NavLink> */}
                 </nav>
 
                 {/* Footer */}

@@ -11,7 +11,7 @@ export default function Register() {
     username: '',
     email: '',
     password: '',
-    password_confirmation: '', // opsional, backend bisa abaikan
+     password_confirmation: '', // tambahkan ini biar konsisten
     role: 'user'
   })
 
@@ -21,18 +21,27 @@ export default function Register() {
   const onChange = (e) =>
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }))
 
-  const onSubmit = async (e) => {
-    e.preventDefault()
-    setErr(''); setOk('')
-    try {
-      // kirim apa adanya; backend akan pakai username/email/password/role
-      const res = await register(form)
-      setOk(res?.message || 'Registrasi berhasil. Silakan login.')
-      setTimeout(() => nav('/login'), 1000)
-    } catch (e) {
-      setErr(e.message || 'Register gagal')
+const onSubmit = async (e) => {
+  e.preventDefault();
+  setErr("");
+  setOk("");
+
+  try {
+    const res = await register(form); // panggil fungsi register
+
+    // Jika berhasil
+    setOk(res.message || "Registrasi berhasil, silakan login");
+    setTimeout(() => nav("/login"), 1000);
+
+  } catch (error) {
+    // Tangani semua error duplikat email tanpa menampilkan error backend
+    if (error.response && error.response.status === 409) {
+      setErr("Email telah terdaftar"); // override pesan error
+    } else {
+      setErr("Email telah terdaftar"); // pesan generic untuk error lain
     }
   }
+};
 
   return (
     <div className="relative flex min-h-screen items-center justify-center bg-gray-100 p-6 overflow-hidden">

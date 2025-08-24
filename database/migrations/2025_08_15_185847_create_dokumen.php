@@ -15,6 +15,7 @@ return new class extends Migration
              $table->id('dokumen_id');
             $table->foreignId('siswa_id')->constrained('siswa', 'siswa_id')->onDelete('cascade');
             $table->string('jenis_dokumen');
+            $table->string('file_path');
             $table->date('tanggal_upload');
             $table->timestamps();
         });
