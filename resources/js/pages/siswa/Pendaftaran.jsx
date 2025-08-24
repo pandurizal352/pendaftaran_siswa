@@ -10,7 +10,7 @@ function AccordionSection({ title, children }) {
             <button
                 type="button"
                 onClick={() => setOpen(!open)}
-                className="w-full flex justify-between items-center bg-blue-600 text-white font-semibold px-4 py-2 rounded-t-lg"
+                className="w-full flex justify-between items-center bg-[#05445E] text-white font-semibold px-4 py-2 rounded-t-lg"
             >
                 <span>{title}</span>
                 <span>{open ? "−" : "+"}</span>

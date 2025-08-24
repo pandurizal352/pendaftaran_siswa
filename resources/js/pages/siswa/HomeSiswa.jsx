@@ -34,7 +34,7 @@ export default function HomeSiswa({ totalSiswa, totalPendaftar }) {
         setOpenIndex(openIndex === index ? null : index);
     };
     return (
-        <div className="flex flex-col min-h-screen scroll-smooth pt-20 -m-5">
+        <div className="flex flex-col min-h-screen scroll-smooth pt-20 -m-6">
             {/* Hero / Gambar Sekolah */}
             <section
                 id="beranda"
