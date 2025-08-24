@@ -2,28 +2,21 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Tymon\JWTAuth\Contracts\JWTSubject; // tambahkan ini
 
-class User extends Authenticatable
+class User extends Authenticatable implements JWTSubject
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasApiTokens, HasFactory, Notifiable;
 
-     public function setRememberToken($value) {}
+    public function setRememberToken($value) {}
     public function getRememberToken() { return null; }
     public function getRememberTokenName() { return null; }
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
-     protected $table = 'users';
+    protected $table = 'users';
     protected $primaryKey = 'user_id';
 
     protected $fillable = [
@@ -38,21 +31,10 @@ class User extends Authenticatable
         return $this->hasOne(Siswa::class, 'user_id', 'user_id');
     }
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
     protected $hidden = [
         'password',
-
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
@@ -60,5 +42,17 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
-}
 
+    // ==========================
+    // JWT Required Functions
+    // ==========================
+    public function getJWTIdentifier()
+    {
+        return $this->getKey(); // biasanya user_id
+    }
+
+    public function getJWTCustomClaims(): array
+    {
+        return []; // bisa tambahkan role dsb jika mau
+    }
+}

@@ -1,95 +1,90 @@
-// contexts/AuthContext.jsx
-import React, { createContext, useContext, useMemo, useState, useEffect } from 'react'
-import { getProfile, loginRequest, registerRequest, logoutRequest } from '../services/authService'
-import { DEV_MODE } from '../utils/config'
+import { createContext, useContext, useState, useEffect } from "react";
+import {
+    loginRequest,
+    registerRequest,
+    getProfile,
+    logoutRequest,
+} from "../services/authService";
 
-const AuthContext = createContext(null)
+const AuthContext = createContext();
 
-export function AuthProvider({ children }) {
-  const [token, setToken] = useState(() => localStorage.getItem('token'))
-  const [user, setUser] = useState(null)
-  const [loading, setLoading] = useState(true)
+export const AuthProvider = ({ children }) => {
+    const [user, setUser] = useState(null);
+    const [token, setToken] = useState(localStorage.getItem("token"));
+    const [loading, setLoading] = useState(true);
 
-  // INIT USER
-  useEffect(() => {
-    async function init() {
-      if (DEV_MODE) {
-        setUser({ id: 1, name: "Developer", role: "admin" })
-        setToken("dev-token")
-        setLoading(false)
-        return
-      }
+    // cek token di localStorage saat pertama kali load app
+    useEffect(() => {
+        const initializeUser = async () => {
+            if (token) {
+                try {
+                    const res = await getProfile(token); // ambil profile user dari API
+                    setUser(res.user); // user akan berisi role, id, nama, dsb
+                } catch (err) {
+                    console.error("Gagal ambil profile:", err);
+                    logout();
+                }
+            }
+            setLoading(false);
+        };
+        initializeUser();
+    }, [token]);
 
-      try {
-        if (token) {
-          const { data } = await getProfile()
-          setUser(data)
+    const login = async ({ email, password }) => {
+        const res = await loginRequest({ email, password });
+
+        if (!res.success) {
+            throw new Error(res.message || "Email atau password salah");
         }
-      } catch (_) {
-        localStorage.removeItem('token')
-        setToken(null)
-      } finally {
-        setLoading(false)
-      }
-    }
-    init()
-  }, [token])
 
-  // LOGIN
-  const login = async (payload) => {
-    if (DEV_MODE) {
-      setUser({ id: 1, name: payload.email, role: "admin" })
-      setToken("dev-token")
-      localStorage.setItem("token", "dev-token")
-      return
-    }
+        const { token: access_token } = res;
 
-    const res = await loginRequest(payload)
-    if (res.status !== 200) throw new Error(res.data?.message || "Login gagal")
+        // simpan token
+        setToken(access_token);
+        localStorage.setItem("token", access_token);
 
-    // setelah login, ambil profile
-    const { data: me } = await getProfile()
-    setUser(me)
-    setToken("session")
-    localStorage.setItem("token", "session")
-  }
+        // ambil profile user dari API setelah login
+        const profile = await getProfile(access_token);
+        setUser(profile.user);
 
-  // REGISTER
-  const register = async (payload) => {
-    if (DEV_MODE) return { message: "Register bypassed in DEV mode" }
-    const res = await registerRequest(payload)
-    if (!res || res.status >= 400) {
-      throw new Error(res.data?.message || "Register gagal")
-    }
-    return res.data
-  }
+        return profile.user;
+    };
 
-  // LOGOUT
-  const logout = async () => {
-    if (DEV_MODE) {
-      setToken(null)
-      setUser(null)
-      localStorage.removeItem('token')
-      return
-    }
-    try {
-      await logoutRequest()
-    } catch (_) {}
-    localStorage.removeItem('token')
-    setToken(null)
-    setUser(null)
-  }
+    const register = async (payload) => {
+        const res = await registerRequest(payload);
+        const { token: access_token } = res;
 
-  const value = useMemo(
-    () => ({ token, user, loading, isAuthenticated: !!token, login, register, logout }),
-    [token, user, loading]
-  )
+        setToken(access_token);
+        localStorage.setItem("token", access_token);
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
-}
+        const profile = await getProfile(access_token);
+        setUser(profile.user);
 
-export function useAuth() {
-  const ctx = useContext(AuthContext)
-  if (!ctx) throw new Error('useAuth must be used within AuthProvider')
-  return ctx
-}
+        return profile.user;
+    };
+
+    const logout = async () => {
+        if (token) await logoutRequest(token).catch(() => {});
+        setToken(null);
+        setUser(null);
+        localStorage.removeItem("token");
+    };
+
+    return (
+        <AuthContext.Provider
+            value={{
+                user,
+                token,
+                login,
+                register,
+                logout,
+                loading,
+                isAuthenticated: !!user,
+            }}
+        >
+            {children}
+        </AuthContext.Provider>
+    );
+};
+
+export const useAuth = () => useContext(AuthContext);

@@ -1,33 +1,28 @@
-import { api } from './api'
+import { api } from "./api";
 
-// LOGIN
+// LOGIN: kirim email & password ke backend
 export async function loginRequest({ email, password }) {
-  try {
-    // wajib ambil CSRF cookie dulu
-    await api.get('/sanctum/csrf-cookie')
-
-    // lalu login (cookies otomatis tersimpan karena credentials: 'include')
-    return await api.post('/api/login', { email, password })
-  } catch (err) {
-    throw err
-  }
+    try {
+        const res = await api.post("/api/login", { email, password });
+        // backend mengirim { success, user, token }
+        return res;
+    } catch (err) {
+        // realistis: email/password salah
+        throw new Error(err.message || "Email atau password salah");
+    }
 }
 
 // REGISTER
 export async function registerRequest(payload) {
-  try {
-    return await api.post('/api/users', payload)
-  } catch (err) {
-    throw err
-  }
+    return api.post("/api/users", payload);
 }
 
-// GET PROFILE (cek user dari sanctum cookie)
-export async function getProfile() {
-  return api.get('/api/user')
+// GET PROFILE
+export async function getProfile(token) {
+    return api.get("/api/me", token);
 }
 
 // LOGOUT
-export async function logoutRequest() {
-  return api.post('/api/logout')
+export async function logoutRequest(token) {
+    return api.post("/api/logout", null, token);
 }

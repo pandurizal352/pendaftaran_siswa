@@ -32,4 +32,27 @@ class Siswa extends Model
         $users = User::all();
         return $this->belongsTo(User::class, 'user_id', 'user_id');
     }
+
+      public function pendaftaran()
+    {
+        return $this->hasOne(Pendaftaran::class, 'siswa_id', 'siswa_id');
+    }
+
+    // Relasi ke OrtuWali
+    public function ortuWali()
+    {
+        return $this->hasOne(OrtuWali::class, 'siswa_id', 'siswa_id');
+    }
+
+    // Relasi ke Riwayat Pendidikan
+    public function riwayatPendidikan()
+    {
+        return $this->hasOne(RiwayatPendidikan::class, 'siswa_id', 'siswa_id');
+    }
+
+    // Relasi ke Dokumen
+    public function dokumen()
+    {
+        return $this->hasMany(Dokumen::class, 'siswa_id', 'siswa_id');
+    }
 }
