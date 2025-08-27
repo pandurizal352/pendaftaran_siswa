@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function Login() {
     const nav = useNavigate();
@@ -8,6 +9,7 @@ export default function Login() {
     const [form, setForm] = useState({ email: "", password: "" });
     const [err, setErr] = useState("");
     const [loading, setLoading] = useState(false);
+    const [showPass, setShowPass] = useState(false); // 👈 state untuk toggle password
 
     const onChange = (e) =>
         setForm({ ...form, [e.target.name]: e.target.value });
@@ -18,16 +20,15 @@ export default function Login() {
         setLoading(true);
 
         try {
-            const user = await login(form); // panggil login ke backend
+            const user = await login(form);
 
-            // Cek role user
             if (user.role === "admin") {
-                nav("/admin", { replace: true }); // redirect ke dashboard admin
+                nav("/admin", { replace: true });
             } else {
-                nav("/", { replace: true }); // redirect ke halaman utama user
+                nav("/", { replace: true });
             }
         } catch (e) {
-            setErr(e.message || "Login gagal"); // tampilkan error jika email/password salah
+            setErr(e.message || "Login gagal");
         } finally {
             setLoading(false);
         }
@@ -44,7 +45,6 @@ export default function Login() {
                         alt="Gambar Sekolah"
                         className="w-full h-full object-contain object-center"
                     />
-                    {/* <span className="text-gray-700 font-medium">Gambar Sekolah</span> */}
                 </div>
 
                 {/* Kolom kanan - form login */}
@@ -69,21 +69,28 @@ export default function Login() {
                             />
                         </label>
 
-                        <label className="block">
+                        <label className="block relative">
                             <span className="mb-1 block text-sm">Password</span>
                             <input
-                                className="w-full rounded border p-2"
-                                type="password"
+                                className="w-full rounded border p-2 pr-10"
+                                type={showPass ? "text" : "password"} // 👈 toggle
                                 name="password"
                                 value={form.password}
                                 onChange={onChange}
                                 required
                             />
+                            <button
+                                type="button"
+                                className="absolute right-3 top-9 text-gray-500 cursor-pointer"
+                                onClick={() => setShowPass(!showPass)}
+                            >
+                                {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
+                            </button>
                         </label>
 
                         <button
                             disabled={loading}
-                            className="w-full rounded bg-blue-600 p-2 text-white hover:bg-blue-700 disabled:opacity-60"
+                            className="w-full rounded bg-[#189AB4] p-2 text-white hover:bg-[#05445E] disabled:opacity-60 cursor-pointer"
                         >
                             {loading ? "Memproses..." : "Login"}
                         </button>

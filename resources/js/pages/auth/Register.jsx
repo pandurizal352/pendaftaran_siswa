@@ -1,47 +1,46 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
+import { Eye, EyeOff } from "lucide-react";
 
 export default function Register() {
   const nav = useNavigate()
   const { register } = useAuth()
 
-  // gunakan "username" agar sesuai dengan backend
   const [form, setForm] = useState({
     username: '',
     email: '',
     password: '',
-     password_confirmation: '', // tambahkan ini biar konsisten
+    password_confirmation: '',
     role: 'user'
   })
 
   const [err, setErr] = useState('')
   const [ok, setOk] = useState('')
+  const [showPass, setShowPass] = useState(false) // 👈 toggle password
+  const [showConfirm, setShowConfirm] = useState(false) // 👈 toggle konfirmasi
 
   const onChange = (e) =>
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }))
 
-const onSubmit = async (e) => {
-  e.preventDefault();
-  setErr("");
-  setOk("");
+  const onSubmit = async (e) => {
+    e.preventDefault();
+    setErr("");
+    setOk("");
 
-  try {
-    const res = await register(form); // panggil fungsi register
+    try {
+      const res = await register(form);
 
-    // Jika berhasil
-    setOk(res.message || "Registrasi berhasil, silakan login");
-    setTimeout(() => nav("/login"), 1000);
-
-  } catch (error) {
-    // Tangani semua error duplikat email tanpa menampilkan error backend
-    if (error.response && error.response.status === 409) {
-      setErr("Email telah terdaftar"); // override pesan error
-    } else {
-      setErr("Email telah terdaftar"); // pesan generic untuk error lain
+      setOk(res.message || "Registrasi berhasil, silakan login");
+      setTimeout(() => nav("/login"), 1000);
+    } catch (error) {
+      if (error.response && error.response.status === 409) {
+        setErr("Email telah terdaftar");
+      } else {
+        setErr("Email telah terdaftar");
+      }
     }
-  }
-};
+  };
 
   return (
     <div className="relative flex min-h-screen items-center justify-center bg-gray-100 p-6 overflow-hidden">
@@ -78,34 +77,54 @@ const onSubmit = async (e) => {
               onChange={onChange}
               required
             />
-            <input
-              className="w-full rounded border p-2"
-              type="password"
-              placeholder="Password"
-              name="password"
-              value={form.password}
-              onChange={onChange}
-              required
-            />
-            {/* optional: kalau backend pakai 'confirmed' */}
-            <input
-              className="w-full rounded border p-2"
-              type="password"
-              placeholder="Konfirmasi Password"
-              name="password_confirmation"
-              value={form.password_confirmation}
-              onChange={onChange}
-            />
 
-            {/* Role (hidden default user) atau jadikan select */}
+            {/* Password dengan toggle */}
+            <div className="relative">
+              <input
+                className="w-full rounded border p-2 pr-10"
+                type={showPass ? "text" : "password"}
+                placeholder="Password"
+                name="password"
+                value={form.password}
+                onChange={onChange}
+                required
+              />
+              <button
+                type="button"
+                className="absolute right-3 top-2.5 text-gray-500 cursor-pointer"
+                onClick={() => setShowPass(!showPass)}
+              >
+                {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+
+            {/* Konfirmasi Password dengan toggle */}
+            <div className="relative ">
+              <input
+                className="w-full rounded border p-2 pr-10 "
+                type={showConfirm ? "text" : "password"}
+                placeholder="Konfirmasi Password"
+                name="password_confirmation"
+                value={form.password_confirmation}
+                onChange={onChange}
+              />
+              <button
+                type="button"
+                className="absolute right-3 top-2.5 text-gray-500 cursor-pointer"
+                onClick={() => setShowConfirm(!showConfirm)}
+              >
+                {showConfirm ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+
             <input type="hidden" name="role" value={form.role} />
 
-            <div className="flex items-center space-x-2 text-sm text-gray-600">
-              <input type="checkbox" className="h-4 w-4" required />
+            <div className="flex items-center space-x-2 text-sm text-gray-600 ">
+              <input type="checkbox" className="h-4 w-4 cursor-pointer" required />
               <span>Saya setuju dengan Syarat & Ketentuan</span>
             </div>
 
-            <button className="w-full rounded bg-blue-600 p-2 text-white hover:bg-blue-700">
+            <button className="w-full rounded bg-[#189AB4] p-2 text-white hover:bg-[#05445E] cursor-pointer">
               Daftar
             </button>
 

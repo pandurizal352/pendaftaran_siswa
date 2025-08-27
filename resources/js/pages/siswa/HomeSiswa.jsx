@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import { Link } from "react-router-dom";
@@ -51,24 +51,41 @@ export default function HomeSiswa() {
         setOpenIndex(openIndex === index ? null : index);
     };
 
+    // ✅ animasi on scroll
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add("animate-fadeInUp");
+                        observer.unobserve(entry.target);
+                    }
+                });
+            },
+            { threshold: 0.1 }
+        );
+
+        document.querySelectorAll(".scroll-animate").forEach((el) => {
+            observer.observe(el);
+        });
+
+        return () => observer.disconnect();
+    }, []);
+
     return (
         <div className="flex flex-col min-h-screen scroll-smooth pt-20 -m-6">
             {/* Hero / Gambar Sekolah */}
             <section
                 id="beranda"
-                className="relative w-full h-screen overflow-hidden"
+                className="relative w-full h-screen overflow-hidden "
             >
                 <img
                     src="http://127.0.0.1:8000/img/Landing-img.jpg"
                     alt="Gambar Sekolah"
                     className="w-full h-[60vh] md:h-screen object-cover"
                 />
-
-                {/* Overlay semi-transparent */}
                 <div className="absolute inset-0"></div>
-
-                {/* Tombol di tengah gambar */}
-                <div className="absolute inset-0 flex items-center justify-center">
+                <div className="absolute inset-0 flex items-center justify-center scroll-animate opacity-0">
                     <Link
                         to="/Pendaftaran"
                         className="bg-[#05445E] text-white px-6 py-3 text-lg md:px-10 md:py-4 md:text-2xl rounded-xl shadow-xl font-bold transition-transform duration-200 ease-in-out hover:bg-[#189AB4] hover:scale-110 active:bg-[#033F4D] active:scale-95 focus:outline-none focus:ring-4 focus:ring-[#189AB4] focus:ring-offset-2 animate-pulse-scale"
@@ -76,26 +93,13 @@ export default function HomeSiswa() {
                         Daftar Sekarang !!
                     </Link>
                 </div>
-
-                <style jsx>{`
-                    @keyframes pulse-scale {
-                        0%, 100% {
-                            transform: scale(1);
-                        }
-                        50% {
-                            transform: scale(1.1);
-                        }
-                    }
-                    .animate-pulse-scale {
-                        animation: pulse-scale 1.5s infinite ease-in-out;
-                    }
-                `}</style>
             </section>
 
-            <section className="py-10 bg-gray-50">
+            {/* Section 1 */}
+            <section className="py-10 bg-gray-50 scroll-animate opacity-0">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-15 max-w-6xl mx-auto px-4">
                     {/* Card 1 */}
-                    <div className="bg-white rounded-xl shadow-md overflow-hidden">
+                    <div className="bg-white rounded-xl shadow-md overflow-hidden hover:scale-105 transition-transform duration-500">
                         <img
                             src="http://127.0.0.1:8000/img/Section/Fasilitas.jpg"
                             alt="Kenapa BW II"
@@ -105,41 +109,37 @@ export default function HomeSiswa() {
                             <h3 className="font-semibold text-lg">Fasilitas</h3>
                         </div>
                     </div>
-
                     {/* Card 2 */}
-                    <div className="bg-white rounded-xl shadow-md overflow-hidden">
+                    <div className="bg-white rounded-xl shadow-md overflow-hidden hover:scale-105 transition-transform duration-500">
                         <img
                             src="http://127.0.0.1:8000/img/Section/KenapaBW2.jpg"
                             alt="Unit Sekolah"
                             className="w-full h-60 object-contain bg-gray-100"
                         />
                         <div className="p-4 text-center">
-                            <h3 className="font-semibold text-lg">
-                                Kenapa BW II
-                            </h3>
+                            <h3 className="font-semibold text-lg">Kenapa BW II</h3>
                         </div>
                     </div>
-
                     {/* Card 3 */}
-                    <div className="bg-white rounded-xl shadow-md overflow-hidden">
+                    <div className="bg-white rounded-xl shadow-md overflow-hidden hover:scale-105 transition-transform duration-500">
                         <img
                             src="http://127.0.0.1:8000/img/Section/UnitSekolah.jpg"
                             alt="Fasilitas"
                             className="w-full h-60 object-contain bg-gray-100"
                         />
                         <div className="p-4 text-center">
-                            <h3 className="font-semibold text-lg">
-                                Unit Sekolah
-                            </h3>
+                            <h3 className="font-semibold text-lg">Unit Sekolah</h3>
                         </div>
                     </div>
                 </div>
             </section>
+
+
             {/* Nama Sekolah + Visi & Misi */}
-            <section id="tentang" className="py-16 bg-gray-100">
-                <div className="max-w-6xl mx-auto px-6 flex flex-col items-center gap-8">
+            <section id="tentang" className="py-16 bg-gray-100 ">
+                <div className="max-w-6xl mx-auto px-6 flex flex-col items-center gap-8 ">
                     {/* Header: Logo + Nama Sekolah */}
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-4 scroll-animate opacity-0">
                         <img
                             src="http://127.0.0.1:8000/img/Logo_Sekolah.png"
                             alt="Logo Budhi Warman II"
@@ -151,12 +151,12 @@ export default function HomeSiswa() {
                     </div>
 
                     {/* Teks Visi & Misi */}
-                    <div className="w-full md:w-3/4">
-                        <h2 className="text-2xl md:text-3xl font-bold mb-4 text-[#05445E] text-center">
+                    <div className="w-full md:w-3/4 ">
+                        <h2 className="text-2xl md:text-3xl font-bold mb-4 text-[#05445E] text-center scroll-animate opacity-0">
                             Visi dan Misi
                         </h2>
 
-                        <div className="mb-6">
+                        <div className="mb-6 scroll-animate opacity-0">
                             <h3 className="text-xl font-semibold mb-2">Visi</h3>
                             <p className="text-gray-700 text-justify">
                                 Lembaga pendidikan yang unggul dalam proses
@@ -169,8 +169,8 @@ export default function HomeSiswa() {
                         </div>
 
                         <div>
-                            <h3 className="text-xl font-semibold mb-2">Misi</h3>
-                            <ul className="list-disc list-inside text-gray-700 space-y-1">
+                            <h3 className="text-xl font-semibold mb-2 scroll-animate opacity-0">Misi</h3>
+                            <ul className="list-disc list-inside text-gray-700 space-y-1 scroll-animate opacity-0">
                                 <li>
                                     Tercapainya proses dan prestasi pendidikan
                                     berkualitas dan peningkatan berkelanjutan.
@@ -209,15 +209,15 @@ export default function HomeSiswa() {
             {/* Gambar Fasilitas sekola */}
             <div
                 id="proyek"
-                className="w-full flex flex-col items-center py-12 bg-[#05445E]"
+                className="w-full flex flex-col items-center py-12 bg-[#05445E] "
             >
                 {/* Judul */}
-                <h2 className="text-3xl font-bold text-white mb-8 tracking-wide">
+                <h2 className="text-3xl font-bold text-white mb-8 tracking-wide scroll-animate opacity-0">
                     Fasilitas Sekolah
                 </h2>
 
                 {/* Grid Gambar */}
-                <div className="w-full flex flex-wrap justify-center gap-8">
+                <div className="w-full flex flex-wrap justify-center gap-8 scroll-animate opacity-0">
                     {[1, 2, 3, 4, 5].map((num) => (
                         <div
                             key={num}
@@ -235,13 +235,13 @@ export default function HomeSiswa() {
 
             {/* Prestasi Sekolah */}
             <section className="py-10 px-4 text-center bg-gray-50">
-                <h2 className="text-2xl font-bold mb-8 text-[#05445E]">
+                <h2 className="text-2xl font-bold mb-8 text-[#05445E] scroll-animate opacity-0">
                     Prestasi Sekolah
                 </h2>
 
                 <div className="space-y-12 max-w-5xl mx-auto">
                     {/* Prestasi 1 */}
-                    <div className="flex flex-col md:flex-row items-center gap-6 text-left">
+                    <div className="flex flex-col md:flex-row items-center gap-6 text-left scroll-animate opacity-0">
                         <img
                             src="http://127.0.0.1:8000/img/prestasi/prestasi1.jpg"
                             alt="Public Speaking"
@@ -268,7 +268,7 @@ export default function HomeSiswa() {
                     </div>
 
                     {/* Prestasi 2 */}
-                    <div className="flex flex-col md:flex-row-reverse items-center gap-6 text-left">
+                    <div className="flex flex-col md:flex-row-reverse items-center gap-6 text-left scroll-animate opacity-0">
                         <img
                             src="http://127.0.0.1:8000/img/prestasi/prestasi2.png"
                             alt="Solo Vokal"
@@ -293,8 +293,8 @@ export default function HomeSiswa() {
                     </div>
 
                     {/* Prestasi 3 */}
-                    <div className="text-left">
-                        <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                    <div className="text-left scroll-animate opacity-0">
+                        <h3 className="text-lg font-semibold text-gray-800 mb-2 ">
                             Keterserapan Lulusan SMA Budhi Warman 2 Jakarta
                             Tahun Pelajaran 2024-2025
                         </h3>
@@ -325,13 +325,13 @@ export default function HomeSiswa() {
             </section>
 
             {/* FAQ Pertanyaan */}
-            <section className="py-12 bg-[#05445E]" id="faq">
+            <section className="py-12 bg-[#05445E] " id="faq">
                 <div id="kontak" className="max-w-4xl mx-auto px-4">
-                    <h2 className="text-2xl font-bold text-center text-white mb-8">
+                    <h2 className="text-2xl font-bold text-center text-white mb-8 scroll-animate opacity-0">
                         Kenapa Memilih Budhi Warman II
                     </h2>
 
-                    <div className="space-y-4">
+                    <div className="space-y-4 scroll-animate opacity-0">
                         {faqs.map((faq, index) => (
                             <div
                                 key={index}
@@ -369,7 +369,7 @@ export default function HomeSiswa() {
             </section>
 
             {/* Data Jumlah Siswa */}
-            <section className="py-10 bg-gray-100">
+            <section className="py-10 bg-gray-100 scroll-animate opacity-10">
                 <div className="max-w-5xl mx-auto text-center mb-8">
                     <h2 className="text-2xl font-bold text-gray-800">
                         Statistik Pendaftaran

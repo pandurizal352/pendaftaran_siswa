@@ -73,8 +73,22 @@ export default function AppRoutes() {
     return (
         <Routes>
             {/* Auth */}
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
+            <Route
+            path="/login"
+            element={
+                <UserLayout>
+                         <Login />
+                </UserLayout>
+
+            } />
+            <Route
+            path="/register"
+            element={
+                <UserLayout>
+                    <Register />
+                </UserLayout>
+
+            } />
 
             {/* Landing page (info sekolah, akses umum) */}
             <Route
